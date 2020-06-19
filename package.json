@@ -1,6 +1,6 @@
 {
   "name": "vicreo_listener",
-  "productName": "VICREO Listener",
+  "productName": "VICREO-Listener",
   "version": "2.0.7",
   "description": "Keyboard ",
   "main": "src/index.js",

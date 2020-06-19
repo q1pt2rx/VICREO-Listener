@@ -1,15 +1,17 @@
 const config = {
-	hooks: {
-		postPackage: require('./src/hooks/notarize.js')
-	},
+  hooks: {
+    postPackage: require('./src/hooks/notarize.js')
+  },
   packagerConfig: {
     asar: true,
     osxSign: {
-			"hardenedRuntime": true,
-			"gatekeeper-assess": false,
+			"hardened-runtime": true,
+      "gatekeeper-assess": false,
+      "entitlements": "./static/entitlements.plist",
+      "entitlements-inherit": "./static/entitlements.plist",
 			"identity": "Developer ID Application: VICREO BV (XS47984U9A)"
-		},
-		"icon": "./img/icon.icns"
+    },
+		"icon": "./src/img/icon.icns"
 	},
   makers: [
     {
