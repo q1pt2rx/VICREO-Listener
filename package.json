@@ -1,6 +1,6 @@
 {
-  "name": "Vicreo-Listener",
-  "productName": "vicreo listener",
+  "name": "vicreo_listener",
+  "productName": "VICREO Listener",
   "version": "2.0.7",
   "description": "Keyboard ",
   "main": "src/index.js",
@@ -9,7 +9,6 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\"",
     "devstart": "electromon ./src/index.js",
     "rebuild": "electron-rebuild -f -w ./src/index.js"
   },
@@ -23,46 +22,11 @@
   },
   "license": "MIT",
   "config": {
-    "forge": {
-      "packagerConfig": {},
-      "publishers": [
-        {
-          "name": "@electron-forge/publisher-github",
-          "config": {
-            "repository": {
-              "owner": "JeffreyDavidsz",
-              "name": "VICREO-Listener"
-            },
-            "prerelease": true
-          }
-        }
-      ],
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "vicreo_listener_forge"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ]
-    }
+    "forge": "./forge.config.js"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
+    "electron-notarize": "^1.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "node-osascript": "^2.1.0",
     "robotjs": "^0.6.0"
