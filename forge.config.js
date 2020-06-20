@@ -1,3 +1,4 @@
+require('dotenv').config();
 const config = {
   hooks: {
     postPackage: require('./src/hooks/notarize.js')
@@ -33,6 +34,18 @@ const config = {
       config: {},
     },
   ],
+  publishers: [
+  {
+    name: '@electron-forge/publisher-github',
+    config: {
+      repository: {
+        owner: 'jeffreydavidsz',
+        name: 'vicreo-listener'
+      },
+      draft: true,
+      prerelease: false
+    }
+  }]
 };
 
 module.exports = config;
