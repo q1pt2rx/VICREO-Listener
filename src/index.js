@@ -2,7 +2,7 @@ const { app, BrowserWindow, Menu, Tray, shell, powerMonitor } = require("electro
 const path = require('path');
 const runApplescript = require("run-applescript");
 const net = require("net"); // TCP server
-const robot = require('robotjs'); // keyboard and mouse events
+const virtualkeycode = require('bindings')('virtualkeycode'); // keyboard and mouse events
 const child_process = require('child_process'); // Shell and file actions
 const version = require('../package.json').version;
 const iconpath = path.join(__dirname, 'img/favicon.png');
@@ -189,7 +189,6 @@ app.on('before_quit', () => {
 
 if (process.platform == "darwin") { app.dock.setIcon(path.join(__dirname, 'img/png/1024x1024.png')) };
 
-
 /**
  * Main function for creating the TCP listener
  */
@@ -220,11 +219,7 @@ function createListener() {
 			try {
 				processIncomingData(JSON.parse(data))
 			} catch (e) {
-				if (data.toString().charAt(0) == '<') {
-					processIncomingData2(data)
-				} else {
-					console.log(e)
-				}
+				console.log(e)
 			}
 		})
 
@@ -239,21 +234,6 @@ function createListener() {
 	});
 	server.listen(port, '0.0.0.0');
 };
-
-
-/**
- * Iterate through array of keys and return keycode for AppleScript
- *
- * @param {string} key to convert
- * @returns {string} code
- */
-function findKeyCode(key) {
-	for (item of keys) {
-		if (key.toLowerCase() == item.key || key == item.vKeyCode) {
-			return item.code;
-		}
-	}
-}
 
 /**
  * Walk-through the array and check for old keys
@@ -272,7 +252,7 @@ function checkModifiers(mod) {
 }
 
 /**
- * Check if old key syntax is used and return the new if needed
+ * Check if old/strange key syntax is used and return the new if needed
  * Also returning lowercase
  * @param {string} - key to check
  * @returns {string} - converted (if needed) String (lowercase)
@@ -294,42 +274,6 @@ function checkKey(key) {
 }
 
 /**
- * Formatting the key and modifiers to a AppleScript part
- * @param {string} - key to check
- * @param {array} - array of strings
- * @returns {string} - part of AppleScript with key of key + modifier to press
- */
-function processKeyDataOSX(key, modifiers) {
-	let script = null;
-	// key = key.toLowerCase()
-	let modifiersInString = '{'
-	for (item in modifiers) {
-		if (modifiers[item] == 'cmd') { modifiers[item] = 'command' };
-		if (modifiers[item] == 'ctrl') { modifiers[item] = 'control' };
-		if (modifiers[item] == 'alt') { modifiers[item] = 'option' };
-		modifiersInString += modifiers[item] + ' down,';
-	}
-	modifiersInString = modifiersInString.substring(0, modifiersInString.length - 1)
-	modifiersInString += '}'
-
-	if (modifiers.length) {
-		if (key.length > 1) {
-			script = `key code ${findKeyCode(key)} using ${modifiersInString}`;
-		} else {
-			script = `keystroke \"${key}\" using ${modifiersInString}`;
-		}
-	} else {
-		if (key.length > 1) {
-			script = `key code ${findKeyCode(key)}`;
-		} else {
-			script = `keystroke \"${key}\"`;
-		}
-	}
-	console.log(script)
-	return script
-}
-
-/**
  * This is the main function for filtering the right actions, use AppleScript for keypress
  * @param {object} - JSON data to process
  */
@@ -343,20 +287,23 @@ function processIncomingData(data) {
 					console.log(result);
 				})();
 			} else {
-				robot.keyTap(checkKey(data.key), checkModifiers(data.modifiers))
+				// virtualkeycode.keyPressRelease(checkKey(data.key), checkModifiers(data.modifiers))
+				virtualkeycode.keyPressRelease(checkKey(data.key))
 			}
 			break;
 
 		case 'pressSpecial':
-			robot.keyTap(checkKey(data.key), [])
+			virtualkeycode.keyPressRelease(checkKey(data.key))
 			break;
 
 		case 'down':
-			robot.keyToggle(checkKey(data.key), 'down', checkModifiers(data.modifiers))
+			// virtualkeycode.keyPress(checkKey(data.key), 'down', checkModifiers(data.modifiers))
+			virtualkeycode.keyPress(checkKey(data.key))
 			break;
 
 		case 'up':
-			robot.keyToggle(checkKey(data.key), 'up', checkModifiers(data.modifiers))
+			// virtualkeycode.keyRelease(checkKey(data.key), 'up', checkModifiers(data.modifiers))
+			virtualkeycode.keyRelease(checkKey(data.key))
 			break;
 
 		case 'processOSX':
@@ -394,7 +341,7 @@ function processIncomingData(data) {
 			break;
 
 		case 'string':
-			robot.typeString(data.msg);
+			virtualkeycode.typeString(data.msg);
 			break;
 
 		case 'file':
@@ -417,70 +364,8 @@ function processIncomingData(data) {
 			}
 			break;
 	}
-
-
-}
-function processIncomingData2(data) {
-	let incomingString = data.toString('utf8')
-	mainWindow.webContents.send('log', 'received: ' + incomingString);
-	let key1, key2, key3
-	let type = incomingString.slice(1, incomingString.search('>'))
-	switch (type) {
-		case 'SK':
-			key1 = incomingString.slice(incomingString.search('>') + 1)
-			hitHotkey(key1, [])
-			break;
-		case 'SPK':
-			key1 = incomingString.slice(incomingString.search('>') + 1)
-			hitHotkey(key1, [])
-			break;
-		case 'KCOMBO':
-			key1 = incomingString.slice(8, incomingString.search('<AND>'))
-			key2 = incomingString.slice(incomingString.search('<AND>') + 5)
-			hitHotkey(key2, [key1])
-			break;
-		case 'KTRIO':
-			key1 = incomingString.slice(7, incomingString.search('<AND>'))
-			key2 = incomingString.slice(incomingString.search('<AND>') + 5, incomingString.search('<AND2>'))
-			key3 = incomingString.slice(incomingString.search('<AND2>') + 6)
-			hitHotkey(key3, [key1, key2])
-			break;
-		case 'KPRESS':
-			key1 = incomingString.slice(8, incomingString.search('<AND>'))
-			key2 = incomingString.slice(incomingString.search('<AND>') + 5)
-			robot.keyToggle(key2, 'down', key1)
-			break;
-		case 'KRELEASE':
-			key1 = incomingString.slice(8, incomingString.search('<AND>'))
-			key2 = incomingString.slice(incomingString.search('<AND>') + 5)
-			robot.keyToggle(key2, 'up', key1)
-			break;
-		case 'MSG':
-			robot.typeString(incomingString.slice(incomingString.search('>') + 1))
-			break;
-		case 'FILE':
-			mainWindow.webContents.send('log', 'please change to new syntax');
-			break;
-		case 'SHELL':
-			mainWindow.webContents.send('log', 'please change to new syntax');
-			break;
-	}
 }
 
-function hitHotkey(key, modifiers) {
-	if (process.platform == "darwin") {
-		(async () => {
-			const result = await runApplescript('tell application \"System Events\"\n' + processKeyDataOSX(key, modifiers) + '\nend tell');
-			console.log(result);
-		})();
-	} else {
-		if (modifiers) {
-			return robot.keyTap(key, modifiers)
-		} else {
-			return robot.keyTap(key)
-		}
-	}
-}
 
 const keys = [
 	{ key: 'cmd', code: 55, vKeyCode: '0x37' },
