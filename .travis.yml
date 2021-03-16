@@ -27,6 +27,7 @@ addons:
 branches:
   only:
   - master
+  - ccode
   - /^v\d+\.\d+\.\d+/
 
 script:
