@@ -30,23 +30,26 @@ The following types are available;
 * up (simulate a key up)
 * processOSX (send keys to a process on mac via AppleScript)
 
-### Example key press
+### Example key press ###
 For keypresses create a object like this;
 <pre><code>{ "key":"tab", "type":"press", "modifiers":["alt"] }</code></pre>
 
 > Put the modifiers in an array.
 > Alt/option, command(win), Ctrl and Shift are supported.
 
-### Example open file
+### Example open file ###
 Open a file on the local system;
 <pre><code>{ "type":"file","path":"C:/Barco/InfoT1413.pdf" }</code></pre>
 
-### Example shell
+### Example shell ###
 To perform a shell command on the system;
 <pre><code>{ "type":"shell","shell":"dir" }</code></pre>
 
-### Example processOSX
+### Example processOSX ###
 <pre><code>{ "key":"tab", "type":"processOSX","processName":"Microsoft PowerPoint", "modifiers":["alt"] }</code></pre>
+
+### Example string message ###
+<pre><code>{ "type":"string","msg":"C:/Barco/InfoT1413.pdf" }</code></pre>
 
 ## Keys ##
 
