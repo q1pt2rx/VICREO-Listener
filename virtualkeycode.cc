@@ -1,11 +1,14 @@
 #include <napi.h>
-#define WINVER 0x0500
-#include <windows.h>
 #include <map>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <iterator>
+
+#ifdef _WIN32
+	#define WINVER 0x0500
+	#include <windows.h>
+#endif
 
 using namespace std;
 
