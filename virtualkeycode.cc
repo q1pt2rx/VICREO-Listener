@@ -156,29 +156,30 @@ Napi::String PressRelease(const Napi::CallbackInfo &info)
 		return Napi::String::New(env, "Wrong argument");
 	}
 
-	INPUT ip;
-	ip.type = INPUT_KEYBOARD;
-	ip.ki.wScan = 0; // Hardware scan code for key
-	ip.ki.time = 0;
-	ip.ki.dwExtraInfo = 0;
+	#ifdef _WIN32
+		INPUT ip;
+		ip.type = INPUT_KEYBOARD;
+		ip.ki.wScan = 0; // Hardware scan code for key
+		ip.ki.time = 0;
+		ip.ki.dwExtraInfo = 0;
 
-	std::map<std::string, int>::iterator it;
-	it = mapOfVKCodes.find(info[0].As<Napi::String>());
-	if (it != mapOfVKCodes.end())
-	{
-		ip.ki.wVk = it->second;
-		ip.ki.dwFlags = 0; // 0 for key press
-		SendInput(1, &ip, sizeof(INPUT));
+		std::map<std::string, int>::iterator it;
+		it = mapOfVKCodes.find(info[0].As<Napi::String>());
+		if (it != mapOfVKCodes.end())
+		{
+			ip.ki.wVk = it->second;
+			ip.ki.dwFlags = 0; // 0 for key press
+			SendInput(1, &ip, sizeof(INPUT));
 
-		// Release the key
-		ip.ki.dwFlags = KEYEVENTF_KEYUP;
-		SendInput(1, &ip, sizeof(INPUT));
-	}
-	else
-	{
-		return Napi::String::New(env, "No key found");
-	}
-
+			// Release the key
+			ip.ki.dwFlags = KEYEVENTF_KEYUP;
+			SendInput(1, &ip, sizeof(INPUT));
+		}
+		else
+		{
+			return Napi::String::New(env, "No key found");
+		}
+	#endif
 	return Napi::String::New(env, "Ok - press and release");
 }
 Napi::String KeyPress(const Napi::CallbackInfo &info)
@@ -197,26 +198,26 @@ Napi::String KeyPress(const Napi::CallbackInfo &info)
 		Napi::TypeError::New(env, "Wrong argument").ThrowAsJavaScriptException();
 		return Napi::String::New(env, "Wrong argument");
 	}
+	#ifdef _WIN32
+		INPUT ip;
+		ip.type = INPUT_KEYBOARD;
+		ip.ki.wScan = 0; // Hardware scan code for key
+		ip.ki.time = 0;
+		ip.ki.dwExtraInfo = 0;
 
-	INPUT ip;
-	ip.type = INPUT_KEYBOARD;
-	ip.ki.wScan = 0; // Hardware scan code for key
-	ip.ki.time = 0;
-	ip.ki.dwExtraInfo = 0;
-
-	std::map<std::string, int>::iterator it;
-	it = mapOfVKCodes.find(info[0].As<Napi::String>());
-	if (it != mapOfVKCodes.end())
-	{
-		ip.ki.wVk = it->second;
-		ip.ki.dwFlags = 0; // 0 for key press
-		SendInput(1, &ip, sizeof(INPUT));
-	}
-	else
-	{
-		return Napi::String::New(env, "No key found");
-	}
-
+		std::map<std::string, int>::iterator it;
+		it = mapOfVKCodes.find(info[0].As<Napi::String>());
+		if (it != mapOfVKCodes.end())
+		{
+			ip.ki.wVk = it->second;
+			ip.ki.dwFlags = 0; // 0 for key press
+			SendInput(1, &ip, sizeof(INPUT));
+		}
+		else
+		{
+			return Napi::String::New(env, "No key found");
+		}
+	#endif
 	return Napi::String::New(env, "Ok - press");
 }
 Napi::String KeyRelease(const Napi::CallbackInfo &info)
@@ -235,26 +236,26 @@ Napi::String KeyRelease(const Napi::CallbackInfo &info)
 		Napi::TypeError::New(env, "Wrong argument").ThrowAsJavaScriptException();
 		return Napi::String::New(env, "Wrong argument");
 	}
+	#ifdef _WIN32
+		INPUT ip;
+		ip.type = INPUT_KEYBOARD;
+		ip.ki.wScan = 0; // Hardware scan code for key
+		ip.ki.time = 0;
+		ip.ki.dwExtraInfo = 0;
 
-	INPUT ip;
-	ip.type = INPUT_KEYBOARD;
-	ip.ki.wScan = 0; // Hardware scan code for key
-	ip.ki.time = 0;
-	ip.ki.dwExtraInfo = 0;
-
-	std::map<std::string, int>::iterator it;
-	it = mapOfVKCodes.find(info[0].As<Napi::String>());
-	if (it != mapOfVKCodes.end())
-	{
-		ip.ki.wVk = it->second;
-		ip.ki.dwFlags = KEYEVENTF_KEYUP;
-		SendInput(1, &ip, sizeof(INPUT));
-	}
-	else
-	{
-		return Napi::String::New(env, "No key found");
-	}
-
+		std::map<std::string, int>::iterator it;
+		it = mapOfVKCodes.find(info[0].As<Napi::String>());
+		if (it != mapOfVKCodes.end())
+		{
+			ip.ki.wVk = it->second;
+			ip.ki.dwFlags = KEYEVENTF_KEYUP;
+			SendInput(1, &ip, sizeof(INPUT));
+		}
+		else
+		{
+			return Napi::String::New(env, "No key found");
+		}
+	#endif
 	return Napi::String::New(env, "Ok - release");
 }
 
@@ -274,37 +275,37 @@ Napi::Value Type(const Napi::CallbackInfo &info)
 	}
 
 	std::string arg0 = info[0].As<Napi::String>(); // convert argument to a string
+	#ifdef _WIN32
+		INPUT ip;
+		ip.type = INPUT_KEYBOARD;
+		ip.ki.wScan = 0; // Hardware scan code for key
+		ip.ki.time = 0;
+		ip.ki.dwExtraInfo = 0;
 
-	INPUT ip;
-	ip.type = INPUT_KEYBOARD;
-	ip.ki.wScan = 0; // Hardware scan code for key
-	ip.ki.time = 0;
-	ip.ki.dwExtraInfo = 0;
+		std::map<std::string, int>::iterator it;
 
-	std::map<std::string, int>::iterator it;
-
-	for (int i = 0; i < arg0.length(); i++) // Walk-through the string and type
-	{
-		string letter(1, arg0[i]);
-		// cout << typeid(arg0[i]).name() << endl;
-		it = mapOfVKCodes.find(letter);
-		if (it != mapOfVKCodes.end())
+		for (int i = 0; i < arg0.length(); i++) // Walk-through the string and type
 		{
-			ip.ki.wVk = it->second;
-			ip.ki.dwFlags = 0; // 0 for key press
-			SendInput(1, &ip, sizeof(INPUT));
+			string letter(1, arg0[i]);
+			// cout << typeid(arg0[i]).name() << endl;
+			it = mapOfVKCodes.find(letter);
+			if (it != mapOfVKCodes.end())
+			{
+				ip.ki.wVk = it->second;
+				ip.ki.dwFlags = 0; // 0 for key press
+				SendInput(1, &ip, sizeof(INPUT));
 
-			// Release the key
-			ip.ki.dwFlags = KEYEVENTF_KEYUP;
-			SendInput(1, &ip, sizeof(INPUT));
+				// Release the key
+				ip.ki.dwFlags = KEYEVENTF_KEYUP;
+				SendInput(1, &ip, sizeof(INPUT));
+			}
+			else
+			{
+				return Napi::String::New(env, "Invalid key found");
+			}
+			Sleep(500); // Wait a bit before next letter
 		}
-		else
-		{
-			return Napi::String::New(env, "Invalid key found");
-		}
-		Sleep(500); // Wait a bit before next letter
-	}
-
+	#endif
 	return Napi::String::New(env, "ok - typing");
 }
 
