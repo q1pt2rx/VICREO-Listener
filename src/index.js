@@ -1,33 +1,31 @@
-
 const { app, BrowserWindow, Menu, Tray, shell, powerMonitor } = require('electron') // app
-const path           = require('path')
+const path = require('path')
 const runApplescript = require('run-applescript')
-const net            = require('net') // TCP server
+const net = require('net') // TCP server
 const virtualkeycode = require('bindings')('virtualkeycode') // keyboard and mouse events
-const child_process  = require('child_process') // Shell and file actions
-const version        = require('../package.json').version
-const iconpath       = path.join(__dirname, 'img/favicon.png')
-const { ipcMain }    = require('electron')
-const os             = require('os')
-const Store          = require('electron-store')
-const store          = new Store()
+const child_process = require('child_process') // Shell and file actions
+const version = require('../package.json').version
+const iconpath = path.join(__dirname, 'img/favicon.png')
+const { ipcMain } = require('electron')
+const os = require('os')
+const Store = require('electron-store')
+const store = new Store()
+const md5 = require('md5')
 
 let tray = null
 let server
 let mainWindow
 
 if (store.get('customPort') != undefined) {
-	port = store.get('customPort');
+	port = store.get('customPort')
 } else {
 	port = 10001 // Standard port
 }
 if (store.get('customPassword') != undefined) {
-	password = store.get('customPassword');
+	password = store.get('customPassword')
 } else {
-	password = "password" // Standard password
+	password = '' // Standard password
 }
-
-
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -45,22 +43,22 @@ process.on('uncaughtException', (err) => {
 // Catch change port message from front-end.
 ipcMain.on('changePort', (event, arg) => {
 	if (arg != port) {
-
-		port = arg;
-		store.set('customPort', port);
-		console.log(`port number changed to ${port}, rebooting server`);
-		server.close();
-		createListener();
-
+		port = arg
+		store.set('customPort', port)
+		console.log(`port number changed to ${port}, rebooting server`)
+		mainWindow.webContents.send('log', 'Port changed')
+		server.close()
+		createListener()
 	}
 })
 
 // Catch change password message from front-end.
 ipcMain.on('changePassword', (event, arg) => {
 	if (arg != password) {
-		password = arg;
-		store.set('customPassword', password);
-		console.log(`Password to connect changed`);
+		password = arg
+		store.set('customPassword', password)
+		console.log(`Password to connect changed`)
+		mainWindow.webContents.send('log', 'Password changed')
 	}
 })
 
@@ -104,7 +102,6 @@ const createWindow = () => {
 			event.preventDefault()
 			mainWindow.hide()
 		}
-
 		return false
 	})
 
@@ -159,6 +156,7 @@ app.whenReady().then(() => {
 		// When the DOM is ready we will send the version of the app
 		mainWindow.webContents.send('initport', port)
 		mainWindow.webContents.send('version', 'Version: ' + version)
+		mainWindow.webContents.send('initpassword', password)
 		// Get the local IP Addresses
 		for (let [key, value] of Object.entries(os.networkInterfaces())) {
 			value.forEach((element) => {
@@ -172,7 +170,6 @@ app.whenReady().then(() => {
 	// When a user click on a link
 	mainWindow.webContents.on('will-navigate', handleRedirect)
 	mainWindow.webContents.on('new-window', handleRedirect)
-
 
 	powerMonitor.on('shutdown', () => {
 		app.quit()
@@ -213,7 +210,6 @@ if (process.platform == 'darwin') {
 function createListener() {
 	// Load socket
 	mainWindow.webContents.send('log', 'waiting for connection...')
-	// Create UDP?
 	server = net.createServer((socket) => {
 		socket.write('Listener active\r\n')
 		socket.pipe(socket)
@@ -231,18 +227,13 @@ function createListener() {
 			mainWindow.webContents.send('log', 'connected')
 		})
 
-		// Try to parse data as JSON, when error returned try old syntax
+		// Try to parse data as JSON
 		socket.on('data', (data) => {
 			console.log(data.toString())
 			try {
 				processIncomingData(JSON.parse(data))
 			} catch (e) {
-
-				if (data.toString().charAt(0) == '<') {
-					mainWindow.webContents.send('log', 'Your are using old syntax, abort')
-				} else {
-
-					console.log(e)
+				console.log(e)
 			}
 		})
 
@@ -259,22 +250,6 @@ function createListener() {
 }
 
 /**
- * Walk-through the array and check for old keys
- * @param {array} mod array to check
- * @returns {array} - with correct modifiers
- */
-function checkModifiers(mod) {
-	if (mod.length) {
-		for (item in mod) {
-			mod[item] = checkKey(mod[item])
-		}
-		return mod
-	} else {
-		return []
-	}
-}
-
-/**
  * Check if old/strange key syntax is used and return the new if needed
  * Also returning lowercase
  * @param {string} - key to check
@@ -282,12 +257,12 @@ function checkModifiers(mod) {
  */
 function checkKey(key) {
 	switch (key) {
-		case 'cmd':
-			return 'command'
-		case 'esc':
-			return 'escape'
-		case 'ctrl':
-			return 'control'
+		case 'command':
+			return 'cmd'
+		case 'escape':
+			return 'esc'
+		case 'control':
+			return 'ctrl'
 		case 'page_up':
 			return 'pageup'
 		case 'page_down':
@@ -302,30 +277,36 @@ function checkKey(key) {
  * @param {array} - array of strings
  * @returns {string} - part of AppleScript with key of key + modifier to press
  */
- function processKeyDataOSX(key, modifiers) {
-	let script = null;
+function processKeyDataOSX(key, modifiers) {
+	let script = null
 	// key = key.toLowerCase()
 	let modifiersInString = '{'
 	for (item in modifiers) {
-		if (modifiers[item] == 'cmd') { modifiers[item] = 'command' };
-		if (modifiers[item] == 'ctrl') { modifiers[item] = 'control' };
-		if (modifiers[item] == 'alt') { modifiers[item] = 'option' };
-		modifiersInString += modifiers[item] + ' down,';
+		if (modifiers[item] == 'cmd') {
+			modifiers[item] = 'command'
+		}
+		if (modifiers[item] == 'ctrl') {
+			modifiers[item] = 'control'
+		}
+		if (modifiers[item] == 'alt') {
+			modifiers[item] = 'option'
+		}
+		modifiersInString += modifiers[item] + ' down,'
 	}
 	modifiersInString = modifiersInString.substring(0, modifiersInString.length - 1)
 	modifiersInString += '}'
 
 	if (modifiers.length) {
 		if (key.length > 1) {
-			script = `key code ${findKeyCode(key)} using ${modifiersInString}`;
+			script = `key code ${findKeyCode(key)} using ${modifiersInString}`
 		} else {
-			script = `keystroke \"${key}\" using ${modifiersInString}`;
+			script = `keystroke \"${key}\" using ${modifiersInString}`
 		}
 	} else {
 		if (key.length > 1) {
-			script = `key code ${findKeyCode(key)}`;
+			script = `key code ${findKeyCode(key)}`
 		} else {
-			script = `keystroke \"${key}\"`;
+			script = `keystroke \"${key}\"`
 		}
 	}
 	console.log(script)
@@ -338,10 +319,10 @@ function checkKey(key) {
  * @param {string} key to convert
  * @returns {string} code
  */
- function findKeyCode(key) {
+function findKeyCode(key) {
 	for (item of keys) {
 		if (key.toLowerCase() == item.key || key == item.vKeyCode) {
-			return item.code;
+			return item.code
 		}
 	}
 }
@@ -352,38 +333,9 @@ function checkKey(key) {
  */
 function processIncomingData(data) {
 	mainWindow.webContents.send('log', 'received: ' + JSON.stringify(data))
-	switch (data.type) {
-		case 'press':
-			if (process.platform == 'darwin') {
-				;(async () => {
-					const result = await runApplescript(
-						'tell application "System Events"\n' + processKeyDataOSX(data.key, data.modifiers) + '\nend tell'
-					)
-					console.log(result)
-				})()
-			} else {
-				// virtualkeycode.keyPressRelease(checkKey(data.key), checkModifiers(data.modifiers))
-				virtualkeycode.keyPressRelease(checkKey(data.key))
-			}
-			break
-
-		case 'pressSpecial':
-			virtualkeycode.keyPressRelease(checkKey(data.key))
-			break
-
-		case 'down':
-			// virtualkeycode.keyPress(checkKey(data.key), 'down', checkModifiers(data.modifiers))
-			virtualkeycode.keyPress(checkKey(data.key))
-			break
-
-		case 'up':
-			// virtualkeycode.keyRelease(checkKey(data.key), 'up', checkModifiers(data.modifiers))
-			virtualkeycode.keyRelease(checkKey(data.key))
-			break
-
-		case 'processOSX':
-			let script = null
-			if (data.processName == 'null' || data.processName == '') {
+	if (data.password == md5(password)) {
+		switch (data.type) {
+			case 'press':
 				if (process.platform == 'darwin') {
 					;(async () => {
 						const result = await runApplescript(
@@ -391,59 +343,119 @@ function processIncomingData(data) {
 						)
 						console.log(result)
 					})()
+				} else {
+					virtualkeycode.keyPressRelease(checkKey(data.key))
 				}
-			} else {
+				break
+
+			case 'combination':
 				if (process.platform == 'darwin') {
 					;(async () => {
 						const result = await runApplescript(
-							`tell application \"System Events\"\ntell process \"${data.processName}\"\nset frontmost to true\n` +
-								processKeyDataOSX(data.key, data.modifiers) +
-								'\nend tell\nend tell'
+							'tell application "System Events"\n' + processKeyDataOSX(data.key, data.modifiers) + '\nend tell'
 						)
 						console.log(result)
 					})()
+				} else {
+					virtualkeycode.keyPress(checkKey(data.modifiers[0]))
+					virtualkeycode.keyPress(checkKey(data.key))
+					virtualkeycode.keyRelease(checkKey(data.key))
+					virtualkeycode.keyRelease(checkKey(data.modifiers[0]))
 				}
-			}
+				break
 
-			break
-			
-		case 'string':
-			virtualkeycode.type(data.msg)
-			break
-
-		case 'shell':
-			child_process.exec(data.shell, (error, stdout, stderr) => {
-				if (error) {
-					mainWindow.webContents.send('log', `error: ${error.message}`)
-					return
+			case 'trio':
+				if (process.platform == 'darwin') {
+					;(async () => {
+						const result = await runApplescript(
+							'tell application "System Events"\n' + processKeyDataOSX(data.key, data.modifiers) + '\nend tell'
+						)
+						console.log(result)
+					})()
+				} else {
+					virtualkeycode.keyPress(checkKey(data.modifiers[0]))
+					virtualkeycode.keyPress(checkKey(data.modifiers[1]))
+					virtualkeycode.keyPress(checkKey(data.key))
+					virtualkeycode.keyRelease(checkKey(data.key))
+					virtualkeycode.keyRelease(checkKey(data.modifiers[1]))
+					virtualkeycode.keyRelease(checkKey(data.modifiers[0]))
 				}
-				if (stderr) {
-					mainWindow.webContents.send('log', `stderr: ${stderr}`)
-					return
-				}
-				mainWindow.webContents.send('log', `stdout: ${stdout}`)
-			})
-			break
+				break
 
-		case 'file':
-			if (process.platform == 'darwin') {
-				child_process.exec('open ' + data.path, function (error, stdout, stderr) {
+			case 'down':
+				virtualkeycode.keyPress(checkKey(data.key))
+				break
+
+			case 'up':
+				virtualkeycode.keyRelease(checkKey(data.key))
+				break
+
+			case 'processOSX':
+				let script = null
+				if (data.processName == 'null' || data.processName == '') {
+					if (process.platform == 'darwin') {
+						;(async () => {
+							const result = await runApplescript(
+								'tell application "System Events"\n' + processKeyDataOSX(data.key, data.modifiers) + '\nend tell'
+							)
+							console.log(result)
+						})()
+					}
+				} else {
+					if (process.platform == 'darwin') {
+						;(async () => {
+							const result = await runApplescript(
+								`tell application \"System Events\"\ntell process \"${data.processName}\"\nset frontmost to true\n` +
+									processKeyDataOSX(data.key, data.modifiers) +
+									'\nend tell\nend tell'
+							)
+							console.log(result)
+						})()
+					}
+				}
+
+				break
+
+			case 'string':
+				virtualkeycode.type(data.msg)
+				break
+
+			case 'shell':
+				child_process.exec(data.shell, (error, stdout, stderr) => {
 					if (error) {
 						mainWindow.webContents.send('log', `error: ${error.message}`)
 						return
 					}
-					mainWindow.webContents.send('log', `stdout: ${stdout}`)
-				})
-			} else {
-				child_process.exec('"' + data.path + '"', function (err, stdout, stderr) {
-					if (error) {
-						mainWindow.webContents.send('log', `error: ${error.message}`)
+					if (stderr) {
+						mainWindow.webContents.send('log', `stderr: ${stderr}`)
 						return
 					}
 					mainWindow.webContents.send('log', `stdout: ${stdout}`)
 				})
-			}
-			break
+				break
+
+			case 'file':
+				if (process.platform == 'darwin') {
+					child_process.exec('open ' + decodeURI(data.path), function (error, stdout, stderr) {
+						if (error) {
+							mainWindow.webContents.send('log', `error: ${error.message}`)
+							return
+						}
+						mainWindow.webContents.send('log', `${stdout}`)
+					})
+				} else {
+					child_process.exec(decodeURI(data.path), function (error, stdout, stderr) {
+						if (error) {
+							mainWindow.webContents.send('log', `error: ${error.message}`)
+							return
+						}
+						mainWindow.webContents.send('log', `${stdout}`)
+					})
+				}
+				break
+		}
+	} else {
+		mainWindow.webContents.send('log', 'wrong password')
 	}
 }
 

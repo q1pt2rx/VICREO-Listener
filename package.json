@@ -31,10 +31,11 @@
     "electron-notarize": "^1.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^6.0.0",
+    "md5": "^2.3.0",
     "node-addon-api": "^3.1.0",
     "run-applescript": "^4.0.0"
   },
-	"repository": {
+  "repository": {
     "type": "git",
     "url": "git://github.com/JeffreyDavidsz/VICREO-Listener.git"
   },
