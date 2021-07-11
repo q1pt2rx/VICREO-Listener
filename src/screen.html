@@ -130,7 +130,11 @@
 <p>The app will listen on port 10001 by default, but you can change that here:</p>
 <h3>Port number</h3>
 <input id="port" class="form-control text-input" value="">
-<input id="changeBtn" type="button" value="Change">
+<input id="changePortBtn" type="button" value="Change">
+<br>
+<h3>Password</h3>
+<input id="password" class="form-control text-input" value="">
+<input id="changePasswordBtn" type="button" value="Change">
 <br>
 <p>Logs:</p>
 <textarea id='logs' rows="8" cols="40" disabled wrap="off"></textarea>
@@ -158,9 +162,14 @@
 		document.getElementById('version').innerHTML = arg;
 	})
 
-	document.getElementById("changeBtn").addEventListener("click", function () {
+	document.getElementById("changePortBtn").addEventListener("click", function () {
 		var port = document.getElementById("port").value;
 		ipcRenderer.send('changePort', port)
+	});
+	
+	document.getElementById("changePasswordBtn").addEventListener("click", function () {
+		var password = document.getElementById("password").value;
+		ipcRenderer.send('changePassword', password)
 	});
 
 </script>
