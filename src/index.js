@@ -2,7 +2,6 @@ const { app, BrowserWindow, Menu, Tray, shell, powerMonitor } = require("electro
 const path                                                    = require('path');
 const runApplescript                                          = require("run-applescript");
 const net                                                     = require("net"); // TCP server
-const robot                                                   = require('robotjs'); // keyboard and mouse events
 const child_process                                           = require('child_process'); // Shell and file actions
 const version                                                 = require('../package.json').version;
 const iconpath                                                = path.join(__dirname, 'img/favicon.png');
@@ -15,10 +14,15 @@ let tray = null;
 let server;
 let mainWindow;
 
-if (store.get('customport') != undefined) {
-	port = store.get('customport');
+if (store.get('customPort') != undefined) {
+	port = store.get('customPort');
 } else {
 	port = 10001 // Standard port
+}
+if (store.get('customPassword') != undefined) {
+	password = store.get('customPassword');
+} else {
+	password = "password" // Standard password
 }
 /**
 * { "key":"tab", "type":"press", "modifiers":["alt"] }
@@ -40,14 +44,23 @@ process.on('uncaughtException', (err) => {
 	console.error(err)
 });
 
-// Catch change port message from front-ed.
+// Catch change port message from front-end.
 ipcMain.on('changePort', (event, arg) => {
 	if (arg != port) {
 		port = arg;
-		store.set('customport', port);
-		console.log(`port number changed to ${port}, closing server`);
+		store.set('customPort', port);
+		console.log(`port number changed to ${port}, rebooting server`);
 		server.close();
 		createListener();
+	}
+})
+
+// Catch change password message from front-end.
+ipcMain.on('changePassword', (event, arg) => {
+	if (arg != password) {
+		password = arg;
+		store.set('customPassword', password);
+		console.log(`Password to connect changed`);
 	}
 })
 
@@ -222,11 +235,7 @@ function createListener() {
 			try {
 				processIncomingData(JSON.parse(data))
 			} catch (e) {
-				if (data.toString().charAt(0) == '<') {
-					processIncomingData2(data)
-				} else {
 					console.log(e)
-				}
 			}
 		})
 
