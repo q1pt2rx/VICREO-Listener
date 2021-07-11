@@ -1,3 +1,4 @@
+
 const { app, BrowserWindow, Menu, Tray, shell, powerMonitor } = require('electron') // app
 const path           = require('path')
 const runApplescript = require('run-applescript')
@@ -15,11 +16,17 @@ let tray = null
 let server
 let mainWindow
 
-if (store.get('customport') != undefined) {
-	port = store.get('customport')
+if (store.get('customPort') != undefined) {
+	port = store.get('customPort');
 } else {
 	port = 10001 // Standard port
 }
+if (store.get('customPassword') != undefined) {
+	password = store.get('customPassword');
+} else {
+	password = "password" // Standard password
+}
+
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -38,11 +45,22 @@ process.on('uncaughtException', (err) => {
 // Catch change port message from front-end.
 ipcMain.on('changePort', (event, arg) => {
 	if (arg != port) {
-		port = arg
-		store.set('customport', port)
-		console.log(`port number changed to ${port}, closing server`)
-		server.close()
-		createListener()
+
+		port = arg;
+		store.set('customPort', port);
+		console.log(`port number changed to ${port}, rebooting server`);
+		server.close();
+		createListener();
+
+	}
+})
+
+// Catch change password message from front-end.
+ipcMain.on('changePassword', (event, arg) => {
+	if (arg != password) {
+		password = arg;
+		store.set('customPassword', password);
+		console.log(`Password to connect changed`);
 	}
 })
 
@@ -155,6 +173,7 @@ app.whenReady().then(() => {
 	mainWindow.webContents.on('will-navigate', handleRedirect)
 	mainWindow.webContents.on('new-window', handleRedirect)
 
+
 	powerMonitor.on('shutdown', () => {
 		app.quit()
 	})
@@ -218,11 +237,12 @@ function createListener() {
 			try {
 				processIncomingData(JSON.parse(data))
 			} catch (e) {
+
 				if (data.toString().charAt(0) == '<') {
 					mainWindow.webContents.send('log', 'Your are using old syntax, abort')
 				} else {
+
 					console.log(e)
-				}
 			}
 		})
 
