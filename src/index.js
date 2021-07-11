@@ -1,18 +1,20 @@
-const { app, BrowserWindow, Menu, Tray, shell, powerMonitor } = require("electron"); // app
-const path                                                    = require('path');
-const runApplescript                                          = require("run-applescript");
-const net                                                     = require("net"); // TCP server
-const child_process                                           = require('child_process'); // Shell and file actions
-const version                                                 = require('../package.json').version;
-const iconpath                                                = path.join(__dirname, 'img/favicon.png');
-const { ipcMain }                                             = require('electron');
-const os                                                      = require('os');
-const Store                                                   = require('electron-store');
 
-const store = new Store()
-let tray = null;
-let server;
-let mainWindow;
+const { app, BrowserWindow, Menu, Tray, shell, powerMonitor } = require('electron') // app
+const path           = require('path')
+const runApplescript = require('run-applescript')
+const net            = require('net') // TCP server
+const virtualkeycode = require('bindings')('virtualkeycode') // keyboard and mouse events
+const child_process  = require('child_process') // Shell and file actions
+const version        = require('../package.json').version
+const iconpath       = path.join(__dirname, 'img/favicon.png')
+const { ipcMain }    = require('electron')
+const os             = require('os')
+const Store          = require('electron-store')
+const store          = new Store()
+
+let tray = null
+let server
+let mainWindow
 
 if (store.get('customPort') != undefined) {
 	port = store.get('customPort');
@@ -24,34 +26,32 @@ if (store.get('customPassword') != undefined) {
 } else {
 	password = "password" // Standard password
 }
-/**
-* { "key":"tab", "type":"press", "modifiers":["alt"] }
-* { "key":"tab", "type":"processOSX","processName":"Powerpoint" "modifier":["alt"] }
-* { "type":"shell","shell":"dir" }
-* { "type":"file","path":"C:/Barco/InfoT1413.pdf" }
-* { "type":"string","msg":"C:/Barco/InfoT1413.pdf" }
-*/
+
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
-	app.quit();
+if (require('electron-squirrel-startup')) {
+	// eslint-disable-line global-require
+	app.quit()
 }
 
 process.on('uncaughtException', (err) => {
 	// if (error.code === 'ERR_BUFFER_OUT_OF_BOUNDS' ) {
 	//	 // ...
-	// } 
+	// }
 	console.error(err)
-});
+})
 
 // Catch change port message from front-end.
 ipcMain.on('changePort', (event, arg) => {
 	if (arg != port) {
+
 		port = arg;
 		store.set('customPort', port);
 		console.log(`port number changed to ${port}, rebooting server`);
 		server.close();
 		createListener();
+
 	}
 })
 
@@ -67,7 +67,7 @@ ipcMain.on('changePassword', (event, arg) => {
 /**
  * Handle of a user clicking on a link, this action needs a new window/browser
  *
- * @param {object} e 
+ * @param {object} e
  * @param {string} url
  */
 let handleRedirect = (e, url) => {
@@ -85,28 +85,28 @@ const createWindow = () => {
 		resizable: false,
 		icon: iconpath,
 		webPreferences: {
-			nodeIntegration: true
-		}
-	});
+			nodeIntegration: true,
+		},
+	})
 
 	mainWindow.setMenu(null)
 
 	// and load the index.html of the app.
-	mainWindow.loadFile(path.join(__dirname, 'screen.html'));
+	mainWindow.loadFile(path.join(__dirname, 'screen.html'))
 
 	mainWindow.on('minimize', function (event) {
-		event.preventDefault();
-		mainWindow.hide();
-	});
+		event.preventDefault()
+		mainWindow.hide()
+	})
 
 	mainWindow.on('close', function (event) {
 		if (!app.isQuiting) {
-			event.preventDefault();
-			mainWindow.hide();
+			event.preventDefault()
+			mainWindow.hide()
 		}
 
-		return false;
-	});
+		return false
+	})
 
 	mainWindow.on('activate', function () {
 		// appIcon.setHighlightMode('always')
@@ -117,55 +117,57 @@ const createWindow = () => {
 		// kill windows or so
 		mainWindow = null
 	})
-	createListener();
-};
+	createListener()
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 // app.on('ready', createWindow);
 app.whenReady().then(() => {
-	if (process.platform == "darwin") {
-		tray = new Tray(path.join(__dirname, 'img/macOSmenuiconTemplate@2x.png'));
+	if (process.platform == 'darwin') {
+		tray = new Tray(path.join(__dirname, 'img/macOSmenuiconTemplate@2x.png'))
 	} else {
-		tray = new Tray(path.join(__dirname, 'img/favicon.png'));
+		tray = new Tray(path.join(__dirname, 'img/favicon.png'))
 	}
-	createWindow();
+	createWindow()
 
 	// create tray menu when ready
 	let contextMenu = Menu.buildFromTemplate([
 		{
-			label: 'Show App', click: function () {
+			label: 'Show App',
+			click: function () {
 				mainWindow.show()
-			}
+			},
 		},
 		{
-			label: 'Version: ' + version
+			label: 'Version: ' + version,
 		},
 		{
-			label: 'Quit', click: function () {
-				app.isQuiting = true;
+			label: 'Quit',
+			click: function () {
+				app.isQuiting = true
 				server.close()
 				console.log('user quit')
-				app.quit();
-			}
-		}
+				app.quit()
+			},
+		},
 	])
 	tray.setContextMenu(contextMenu)
 
 	mainWindow.webContents.on('dom-ready', () => {
 		// When the DOM is ready we will send the version of the app
-		mainWindow.webContents.send('initport', port);
-		mainWindow.webContents.send('version', 'Version: ' + version);
+		mainWindow.webContents.send('initport', port)
+		mainWindow.webContents.send('version', 'Version: ' + version)
 		// Get the local IP Addresses
 		for (let [key, value] of Object.entries(os.networkInterfaces())) {
-			value.forEach(element => {
+			value.forEach((element) => {
 				if (element.family == 'IPv4' && element.address != '127.0.0.1') {
-					mainWindow.webContents.send('log', 'Found IPv4 address: ' + element.address);
+					mainWindow.webContents.send('log', 'Found IPv4 address: ' + element.address)
 				}
-			});
+			})
 		}
-	});
+	})
 
 	// When a user click on a link
 	mainWindow.webContents.on('will-navigate', handleRedirect)
@@ -173,9 +175,8 @@ app.whenReady().then(() => {
 
 
 	powerMonitor.on('shutdown', () => {
-		app.quit();
+		app.quit()
 	})
-
 })
 
 // Quit when all windows are closed.
@@ -183,17 +184,17 @@ app.on('window-all-closed', () => {
 	// On OS X it is common for applications and their menu bar
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (process.platform !== 'darwin') {
-		app.quit();
+		app.quit()
 	}
-});
+})
 
 app.on('activate', () => {
 	// On OS X it's common to re-create a window in the app when the
 	// dock icon is clicked and there are no other windows open.
 	if (BrowserWindow.getAllWindows().length === 0) {
-		createWindow();
+		createWindow()
 	}
-});
+})
 
 app.on('before_quit', () => {
 	// Close server before quiting
@@ -202,31 +203,32 @@ app.on('before_quit', () => {
 	console.log('user quit')
 })
 
-if (process.platform == "darwin") { app.dock.setIcon(path.join(__dirname, 'img/png/1024x1024.png')) };
-
+if (process.platform == 'darwin') {
+	app.dock.setIcon(path.join(__dirname, 'img/png/1024x1024.png'))
+}
 
 /**
  * Main function for creating the TCP listener
  */
 function createListener() {
 	// Load socket
-	mainWindow.webContents.send('log', 'waiting for connection...');
+	mainWindow.webContents.send('log', 'waiting for connection...')
 	// Create UDP?
 	server = net.createServer((socket) => {
-		socket.write('Listener active\r\n');
-		socket.pipe(socket);
+		socket.write('Listener active\r\n')
+		socket.pipe(socket)
 
-		console.log("connected")
-		mainWindow.webContents.send('log', 'connected');
+		console.log('connected')
+		mainWindow.webContents.send('log', 'connected')
 
 		socket.on('end', () => {
 			console.log('client ended connection, waiting for connection...')
-			mainWindow.webContents.send('log', 'client ended connection, waiting for connection...');
+			mainWindow.webContents.send('log', 'client ended connection, waiting for connection...')
 		})
 
 		socket.on('connect', () => {
-			console.log("connected")
-			mainWindow.webContents.send('log', 'connected');
+			console.log('connected')
+			mainWindow.webContents.send('log', 'connected')
 		})
 
 		// Try to parse data as JSON, when error returned try old syntax
@@ -235,35 +237,25 @@ function createListener() {
 			try {
 				processIncomingData(JSON.parse(data))
 			} catch (e) {
+
+				if (data.toString().charAt(0) == '<') {
+					mainWindow.webContents.send('log', 'Your are using old syntax, abort')
+				} else {
+
 					console.log(e)
 			}
 		})
 
 		server.on('error', function (e) {
-			callback(true);
-		});
+			callback(true)
+		})
 
 		server.on('listening', function (e) {
-			server.close();
-			callback(false);
-		});
-	});
-	server.listen(port, '0.0.0.0');
-};
-
-
-/**
- * Iterate through array of keys and return keycode for AppleScript
- *
- * @param {string} key to convert
- * @returns {string} code
- */
-function findKeyCode(key) {
-	for (item of keys) {
-		if (key.toLowerCase() == item.key || key == item.vKeyCode) {
-			return item.code;
-		}
-	}
+			server.close()
+			callback(false)
+		})
+	})
+	server.listen(port, '0.0.0.0')
 }
 
 /**
@@ -274,16 +266,16 @@ function findKeyCode(key) {
 function checkModifiers(mod) {
 	if (mod.length) {
 		for (item in mod) {
-			mod[item] = checkKey(mod[item]);
+			mod[item] = checkKey(mod[item])
 		}
 		return mod
 	} else {
-		return [];
+		return []
 	}
 }
 
 /**
- * Check if old key syntax is used and return the new if needed
+ * Check if old/strange key syntax is used and return the new if needed
  * Also returning lowercase
  * @param {string} - key to check
  * @returns {string} - converted (if needed) String (lowercase)
@@ -291,17 +283,17 @@ function checkModifiers(mod) {
 function checkKey(key) {
 	switch (key) {
 		case 'cmd':
-			return 'command';
+			return 'command'
 		case 'esc':
-			return 'escape';
+			return 'escape'
 		case 'ctrl':
-			return 'control';
+			return 'control'
 		case 'page_up':
-			return 'pageup';
+			return 'pageup'
 		case 'page_down':
 			return 'pagedown'
 	}
-	return key.toLowerCase();
+	return key.toLowerCase()
 }
 
 /**
@@ -310,7 +302,7 @@ function checkKey(key) {
  * @param {array} - array of strings
  * @returns {string} - part of AppleScript with key of key + modifier to press
  */
-function processKeyDataOSX(key, modifiers) {
+ function processKeyDataOSX(key, modifiers) {
 	let script = null;
 	// key = key.toLowerCase()
 	let modifiersInString = '{'
@@ -341,155 +333,117 @@ function processKeyDataOSX(key, modifiers) {
 }
 
 /**
- * This is the main function for filtering the right actions, use AppleScript for keypress
+ * Iterate through array of keys and return keycode for AppleScript
+ *
+ * @param {string} key to convert
+ * @returns {string} code
+ */
+ function findKeyCode(key) {
+	for (item of keys) {
+		if (key.toLowerCase() == item.key || key == item.vKeyCode) {
+			return item.code;
+		}
+	}
+}
+
+/**
+ * This is the main function for filtering the right actions, use AppleScript for keypress, C++ for windows
  * @param {object} - JSON data to process
  */
 function processIncomingData(data) {
-	mainWindow.webContents.send('log', 'received: ' + JSON.stringify(data));
+	mainWindow.webContents.send('log', 'received: ' + JSON.stringify(data))
 	switch (data.type) {
 		case 'press':
-			if (process.platform == "darwin") {
-				(async () => {
-					const result = await runApplescript('tell application \"System Events\"\n' + processKeyDataOSX(data.key, data.modifiers) + '\nend tell');
-					console.log(result);
-				})();
+			if (process.platform == 'darwin') {
+				;(async () => {
+					const result = await runApplescript(
+						'tell application "System Events"\n' + processKeyDataOSX(data.key, data.modifiers) + '\nend tell'
+					)
+					console.log(result)
+				})()
 			} else {
-				robot.keyTap(checkKey(data.key), checkModifiers(data.modifiers))
+				// virtualkeycode.keyPressRelease(checkKey(data.key), checkModifiers(data.modifiers))
+				virtualkeycode.keyPressRelease(checkKey(data.key))
 			}
-			break;
+			break
 
 		case 'pressSpecial':
-			robot.keyTap(checkKey(data.key), [])
-			break;
+			virtualkeycode.keyPressRelease(checkKey(data.key))
+			break
 
 		case 'down':
-			robot.keyToggle(checkKey(data.key), 'down', checkModifiers(data.modifiers))
-			break;
+			// virtualkeycode.keyPress(checkKey(data.key), 'down', checkModifiers(data.modifiers))
+			virtualkeycode.keyPress(checkKey(data.key))
+			break
 
 		case 'up':
-			robot.keyToggle(checkKey(data.key), 'up', checkModifiers(data.modifiers))
-			break;
+			// virtualkeycode.keyRelease(checkKey(data.key), 'up', checkModifiers(data.modifiers))
+			virtualkeycode.keyRelease(checkKey(data.key))
+			break
 
 		case 'processOSX':
-			let script = null;
+			let script = null
 			if (data.processName == 'null' || data.processName == '') {
-				if (process.platform == "darwin") {
-					(async () => {
-						const result = await runApplescript('tell application \"System Events\"\n' + processKeyDataOSX(data.key, data.modifiers) + '\nend tell');
-						console.log(result);
-					})();
+				if (process.platform == 'darwin') {
+					;(async () => {
+						const result = await runApplescript(
+							'tell application "System Events"\n' + processKeyDataOSX(data.key, data.modifiers) + '\nend tell'
+						)
+						console.log(result)
+					})()
 				}
 			} else {
-				if (process.platform == "darwin") {
-					(async () => {
-						const result = await runApplescript(`tell application \"System Events\"\ntell process \"${data.processName}\"\nset frontmost to true\n` + processKeyDataOSX(data.key, data.modifiers) + '\nend tell\nend tell');
-						console.log(result);
-					})();
+				if (process.platform == 'darwin') {
+					;(async () => {
+						const result = await runApplescript(
+							`tell application \"System Events\"\ntell process \"${data.processName}\"\nset frontmost to true\n` +
+								processKeyDataOSX(data.key, data.modifiers) +
+								'\nend tell\nend tell'
+						)
+						console.log(result)
+					})()
 				}
 			}
 
-			break;
+			break
+			
+		case 'string':
+			virtualkeycode.type(data.msg)
+			break
 
 		case 'shell':
 			child_process.exec(data.shell, (error, stdout, stderr) => {
 				if (error) {
-					mainWindow.webContents.send('log', `error: ${error.message}`);
-					return;
+					mainWindow.webContents.send('log', `error: ${error.message}`)
+					return
 				}
 				if (stderr) {
-					mainWindow.webContents.send('log', `stderr: ${stderr}`);
-					return;
+					mainWindow.webContents.send('log', `stderr: ${stderr}`)
+					return
 				}
-				mainWindow.webContents.send('log', `stdout: ${stdout}`);
+				mainWindow.webContents.send('log', `stdout: ${stdout}`)
 			})
-			break;
-
-		case 'string':
-			robot.typeString(data.msg);
-			break;
+			break
 
 		case 'file':
-			if (process.platform == "darwin") {
-				child_process.exec('open ' + data.path, function (err, stdout, stderr) {
-					if (err) {
-						console.error(err);
-						return;
+			if (process.platform == 'darwin') {
+				child_process.exec('open ' + data.path, function (error, stdout, stderr) {
+					if (error) {
+						mainWindow.webContents.send('log', `error: ${error.message}`)
+						return
 					}
-					console.log(stdout);
+					mainWindow.webContents.send('log', `stdout: ${stdout}`)
 				})
 			} else {
-				child_process.exec('\"' + data.path + '\"', function (err, stdout, stderr) {
-					if (err) {
-						console.error(err);
-						return;
+				child_process.exec('"' + data.path + '"', function (err, stdout, stderr) {
+					if (error) {
+						mainWindow.webContents.send('log', `error: ${error.message}`)
+						return
 					}
-					console.log(stdout);
+					mainWindow.webContents.send('log', `stdout: ${stdout}`)
 				})
 			}
-			break;
-	}
-
-
-}
-function processIncomingData2(data) {
-	let incomingString = data.toString('utf8')
-	mainWindow.webContents.send('log', 'received: ' + incomingString);
-	let key1, key2, key3
-	let type = incomingString.slice(1, incomingString.search('>'))
-	switch (type) {
-		case 'SK':
-			key1 = incomingString.slice(incomingString.search('>') + 1)
-			hitHotkey(key1, [])
-			break;
-		case 'SPK':
-			key1 = incomingString.slice(incomingString.search('>') + 1)
-			hitHotkey(key1, [])
-			break;
-		case 'KCOMBO':
-			key1 = incomingString.slice(8, incomingString.search('<AND>'))
-			key2 = incomingString.slice(incomingString.search('<AND>') + 5)
-			hitHotkey(key2, [key1])
-			break;
-		case 'KTRIO':
-			key1 = incomingString.slice(7, incomingString.search('<AND>'))
-			key2 = incomingString.slice(incomingString.search('<AND>') + 5, incomingString.search('<AND2>'))
-			key3 = incomingString.slice(incomingString.search('<AND2>') + 6)
-			hitHotkey(key3, [key1, key2])
-			break;
-		case 'KPRESS':
-			key1 = incomingString.slice(8, incomingString.search('<AND>'))
-			key2 = incomingString.slice(incomingString.search('<AND>') + 5)
-			robot.keyToggle(key2, 'down', key1)
-			break;
-		case 'KRELEASE':
-			key1 = incomingString.slice(8, incomingString.search('<AND>'))
-			key2 = incomingString.slice(incomingString.search('<AND>') + 5)
-			robot.keyToggle(key2, 'up', key1)
-			break;
-		case 'MSG':
-			robot.typeString(incomingString.slice(incomingString.search('>') + 1))
-			break;
-		case 'FILE':
-			mainWindow.webContents.send('log', 'please change to new syntax');
-			break;
-		case 'SHELL':
-			mainWindow.webContents.send('log', 'please change to new syntax');
-			break;
-	}
-}
-
-function hitHotkey(key, modifiers) {
-	if (process.platform == "darwin") {
-		(async () => {
-			const result = await runApplescript('tell application \"System Events\"\n' + processKeyDataOSX(key, modifiers) + '\nend tell');
-			console.log(result);
-		})();
-	} else {
-		if (modifiers) {
-			return robot.keyTap(key, modifiers)
-		} else {
-			return robot.keyTap(key)
-		}
+			break
 	}
 }
 
@@ -599,4 +553,3 @@ const keys = [
 	{ key: '8', code: 28, vKeyCode: '0x1C' },
 	{ key: '9', code: 25, vKeyCode: '0x19' },
 ]
-
