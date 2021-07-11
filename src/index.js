@@ -1,19 +1,21 @@
 const { app, BrowserWindow, Menu, Tray, shell, powerMonitor } = require("electron"); // app
-const path = require('path');
-const runApplescript = require("run-applescript");
-const net = require("net"); // TCP server
-const robot = require('robotjs'); // keyboard and mouse events
-const child_process = require('child_process'); // Shell and file actions
-const version = require('../package.json').version;
-const iconpath = path.join(__dirname, 'img/favicon.png');
-const { ipcMain } = require('electron');
-const os = require('os');
-const Store = require('electron-store');
+const path                                                    = require('path');
+const runApplescript                                          = require("run-applescript");
+const net                                                     = require("net"); // TCP server
+const robot                                                   = require('robotjs'); // keyboard and mouse events
+const child_process                                           = require('child_process'); // Shell and file actions
+const version                                                 = require('../package.json').version;
+const iconpath                                                = path.join(__dirname, 'img/favicon.png');
+const { ipcMain }                                             = require('electron');
+const os                                                      = require('os');
+const Store                                                   = require('electron-store');
+
 const store = new Store()
 let tray = null;
 let server;
 let mainWindow;
-if (store.get('customport') != undefined ) {
+
+if (store.get('customport') != undefined) {
 	port = store.get('customport');
 } else {
 	port = 10001 // Standard port
@@ -156,7 +158,7 @@ app.whenReady().then(() => {
 	mainWindow.webContents.on('will-navigate', handleRedirect)
 	mainWindow.webContents.on('new-window', handleRedirect)
 
-	
+
 	powerMonitor.on('shutdown', () => {
 		app.quit();
 	})
