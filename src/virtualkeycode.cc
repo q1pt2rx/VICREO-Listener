@@ -42,6 +42,7 @@ void defineKeys()
 	mapOfVKCodes.insert(std::make_pair("right", 0x27));
 	mapOfVKCodes.insert(std::make_pair("down", 0x28));
 	mapOfVKCodes.insert(std::make_pair("printscreen", 0x2C));
+	mapOfVKCodes.insert(std::make_pair("printscr", 0x2C));
 	mapOfVKCodes.insert(std::make_pair("ins", 0x2D));
 	mapOfVKCodes.insert(std::make_pair("del", 0x2E));
 	mapOfVKCodes.insert(std::make_pair("help", 0x2F));
@@ -82,6 +83,8 @@ void defineKeys()
 	mapOfVKCodes.insert(std::make_pair("y", 0x59));
 	mapOfVKCodes.insert(std::make_pair("z", 0x5A));
 	mapOfVKCodes.insert(std::make_pair("leftwindows", 0x5B));
+	mapOfVKCodes.insert(std::make_pair("start", 0x5B));
+	mapOfVKCodes.insert(std::make_pair("cmd", 0x5B));
 	mapOfVKCodes.insert(std::make_pair("rightwindows", 0x5C));
 	mapOfVKCodes.insert(std::make_pair("sleep", 0x5F));
 	mapOfVKCodes.insert(std::make_pair("num0", 0x60));
