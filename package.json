@@ -32,7 +32,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^6.0.0",
     "md5": "^2.3.0",
-    "node-addon-api": "^3.1.0",
+    "node-addon-api": "^4.0.0",
     "run-applescript": "^4.0.0"
   },
   "repository": {
@@ -41,11 +41,11 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.57",
-    "@electron-forge/maker-deb": "6.0.0-beta.51",
-    "@electron-forge/maker-rpm": "6.0.0-beta.51",
-    "@electron-forge/maker-squirrel": "6.0.0-beta.51",
-    "@electron-forge/maker-zip": "6.0.0-beta.51",
-    "@electron-forge/publisher-github": "^6.0.0-beta.51",
+    "@electron-forge/maker-deb": "6.0.0-beta.57",
+    "@electron-forge/maker-rpm": "6.0.0-beta.57",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.57",
+    "@electron-forge/maker-zip": "6.0.0-beta.57",
+    "@electron-forge/publisher-github": "^6.0.0-beta.57",
     "electromon": "^1.0.10",
     "electron": "13.1.6",
     "electron-rebuild": "^1.11.0"
