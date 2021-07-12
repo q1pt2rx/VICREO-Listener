@@ -45,8 +45,8 @@ const config = {
 			name: '@electron-forge/publisher-github',
 			config: {
 				repository: {
-					owner: 'jeffreydavidsz',
-					name: 'vicreo-listener'
+					owner: 'JeffreyDavidsz',
+					name: 'VICREO-Listener'
 				},
 				draft: true,
 				prerelease: false
