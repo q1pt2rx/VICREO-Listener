@@ -48,6 +48,6 @@
     "@electron-forge/publisher-github": "^6.0.0-beta.57",
     "electromon": "^1.0.10",
     "electron": "13.1.6",
-    "electron-rebuild": "^1.11.0"
+    "electron-rebuild": "^2.3.5"
   }
 }
