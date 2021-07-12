@@ -2,6 +2,7 @@
 # extra
 windows_signing.pfx
 build/
+bin/
 
 # Logs
 logs
