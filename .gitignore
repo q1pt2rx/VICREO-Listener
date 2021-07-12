@@ -1,7 +1,7 @@
 
 # extra
 windows_signing.pfx
-build/*
+build/
 
 # Logs
 logs

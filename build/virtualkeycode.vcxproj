@@ -36,7 +36,6 @@
     <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\bin\;$(MSBuildProjectDirectory)\..\bin\</ExecutablePath>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <IntDir>$(Configuration)\obj\$(ProjectName)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.node</TargetExt>
@@ -51,6 +50,7 @@
       <AdditionalIncludeDirectories>C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\include\node;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\src;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\openssl\config;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\openssl\openssl\include;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\uv\include;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\zlib;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\v8\include;C:\Users\jeffrey.davidsz\projects\VICREO-Listener\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <DisableSpecificWarnings>4351;4355;4800;4251;4275;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
@@ -65,18 +65,12 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>false</TreatWarningAsError>
       <WarningLevel>Level3</WarningLevel>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
-    <Lib>
-      <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
-    </Lib>
     <Link>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\\Users\\jeffrey.davidsz\\AppData\\Local\\node-gyp\\Cache\\14.16.0\\x64\\node.lib&quot;</AdditionalDependencies>
-      <AdditionalOptions>/LTCG:INCREMENTAL /ignore:4199 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/ignore:4199 %(AdditionalOptions)</AdditionalOptions>
       <DelayLoadDLLs>node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetExt>.node</TargetExt>
@@ -91,6 +85,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\include\node;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\src;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\openssl\config;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\openssl\openssl\include;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\uv\include;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\zlib;C:\Users\jeffrey.davidsz\AppData\Local\node-gyp\Cache\14.16.0\deps\v8\include;C:\Users\jeffrey.davidsz\projects\VICREO-Listener\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <DisableSpecificWarnings>4351;4355;4800;4251;4275;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
@@ -109,18 +104,12 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>false</TreatWarningAsError>
       <WarningLevel>Level3</WarningLevel>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
-    <Lib>
-      <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
-    </Lib>
     <Link>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\\Users\\jeffrey.davidsz\\AppData\\Local\\node-gyp\\Cache\\14.16.0\\x64\\node.lib&quot;</AdditionalDependencies>
-      <AdditionalOptions>/LTCG:INCREMENTAL /ignore:4199 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/ignore:4199 %(AdditionalOptions)</AdditionalOptions>
       <DelayLoadDLLs>node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetExt>.node</TargetExt>
@@ -136,7 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\virtualkeycode.cc"/>
-    <ClCompile Include="C:\Users\jeffrey.davidsz\projects\VICREO-Listener\node_modules\@electron-forge\publisher-base\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
+    <ClCompile Include="C:\Users\jeffrey.davidsz\projects\VICREO-Listener\node_modules\electron-rebuild\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="node_modules\node-addon-api\nothing.vcxproj">
