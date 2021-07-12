@@ -421,7 +421,7 @@ function processIncomingData(data) {
 				break
 
 			case 'shell':
-				child_process.exec(data.shell, (error, stdout, stderr) => {
+				child_process.exec(decodeURI(data.shell), (error, stdout, stderr) => {
 					if (error) {
 						mainWindow.webContents.send('log', `error: ${error.message}`)
 						return
@@ -430,7 +430,7 @@ function processIncomingData(data) {
 						mainWindow.webContents.send('log', `stderr: ${stderr}`)
 						return
 					}
-					mainWindow.webContents.send('log', `stdout: ${stdout}`)
+					mainWindow.webContents.send('log', `response: ${stdout}`)
 				})
 				break
 
@@ -441,7 +441,7 @@ function processIncomingData(data) {
 							mainWindow.webContents.send('log', `error: ${error.message}`)
 							return
 						}
-						mainWindow.webContents.send('log', `${stdout}`)
+						mainWindow.webContents.send('log', `response: ${stdout}`)
 					})
 				} else {
 					child_process.exec(decodeURI(data.path), function (error, stdout, stderr) {
@@ -449,7 +449,7 @@ function processIncomingData(data) {
 							mainWindow.webContents.send('log', `error: ${error.message}`)
 							return
 						}
-						mainWindow.webContents.send('log', `${stdout}`)
+						mainWindow.webContents.send('log', `response: ${stdout}`)
 					})
 				}
 				break
