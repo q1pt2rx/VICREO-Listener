@@ -26,6 +26,11 @@ if (store.get('customPassword') != undefined) {
 } else {
 	password = '' // Standard password
 }
+if (store.get('startMinimized') != undefined) {
+	startMinimized = store.get('startMinimized')
+} else {
+	startMinimized = false
+}
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -86,6 +91,10 @@ const createWindow = () => {
 			nodeIntegration: true,
 		},
 	})
+	
+	if (startMinimized) {
+		mainWindow.hide()
+	}
 
 	mainWindow.setMenu(null)
 
@@ -94,6 +103,7 @@ const createWindow = () => {
 
 	mainWindow.on('minimize', function (event) {
 		event.preventDefault()
+		mainWindow.setSkipTaskbar(true)
 		mainWindow.hide()
 	})
 
@@ -107,13 +117,19 @@ const createWindow = () => {
 
 	mainWindow.on('activate', function () {
 		// appIcon.setHighlightMode('always')
-		mainWindow.show()
+		// mainWindow.show()
+		mainWindow.minimize()
 	})
 
+	mainWindow.on('restore', () => {
+		mainWindow.setSkipTaskbar(false)
+	})
+	
 	mainWindow.on('closed', () => {
 		// kill windows or so
 		mainWindow = null
 	})
+	
 	createListener()
 }
 
@@ -139,6 +155,18 @@ app.whenReady().then(() => {
 		},
 		{
 			label: 'Version: ' + version,
+		},
+		{
+			label: startMinimized ? 'Click to start full' : 'Click to start minimized',
+			click: function () {
+				if (startMinimized) {
+					mainWindow.show()
+					store.set('startMinimized', false)
+				} else {
+					mainWindow.hide()
+					store.set('startMinimized', true)
+				}
+			}
 		},
 		{
 			label: 'Quit',
