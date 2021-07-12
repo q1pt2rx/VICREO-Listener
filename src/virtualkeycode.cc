@@ -137,10 +137,15 @@ void defineKeys()
 	mapOfVKCodes.insert(std::make_pair("stop", 0xB2));
 	mapOfVKCodes.insert(std::make_pair("play", 0xB3));
 	mapOfVKCodes.insert(std::make_pair("pause", 0xB3));
-	mapOfVKCodes.insert(std::make_pair("+", 0xBB));
+	// mapOfVKCodes.insert(std::make_pair("+", 0xBB));
 	mapOfVKCodes.insert(std::make_pair(",", 0xBC));
-	mapOfVKCodes.insert(std::make_pair("-", 0xBD));
-	mapOfVKCodes.insert(std::make_pair(".", 0xBE));
+	// mapOfVKCodes.insert(std::make_pair("-", 0xBD));
+	// mapOfVKCodes.insert(std::make_pair(".", 0xBE));
+	mapOfVKCodes.insert(std::make_pair("*", 0x6A));
+	mapOfVKCodes.insert(std::make_pair("+", 0x6B));
+	mapOfVKCodes.insert(std::make_pair("|", 0x6C));
+	mapOfVKCodes.insert(std::make_pair("-", 0x6D));
+	mapOfVKCodes.insert(std::make_pair(".", 0x6E));
 }
 
 Napi::String PressRelease(const Napi::CallbackInfo &info)
