@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 	<meta charset="UTF-8">
 	<title>Vicreo Listener</title>
@@ -124,6 +123,7 @@
 		}
 	</style>
 </head>
+
 <h1><label id="version">Welcome!</label></h1>
 <p>You can close this screen, and the app will remain open in the system tray (Windows) or the menu bar (macOS).</p>
 <p>The app will listen on port 10001 by default, but you can change that here:</p>
@@ -143,9 +143,8 @@
 </html>
 
 <script>
-
 	const { ipcRenderer } = require('electron')
-
+	
 	ipcRenderer.on('initport', (event, arg) => {
 		document.getElementById('port').value = arg;
 	})
