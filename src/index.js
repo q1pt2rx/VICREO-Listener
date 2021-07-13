@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, shell, powerMonitor } = require('electron') // app
+const { app, BrowserWindow, Menu, Tray, shell, powerMonitor, ipcMain } = require('electron') // app
 const path = require('path')
 const runApplescript = require('run-applescript')
 const net = require('net') // TCP server
@@ -6,14 +6,13 @@ const virtualkeycode = require('bindings')('virtualkeycode') // keyboard and mou
 const child_process = require('child_process') // Shell and file actions
 const version = require('../package.json').version
 const iconpath = path.join(__dirname, 'img/favicon.png')
-const { ipcMain } = require('electron')
 const os = require('os')
 const Store = require('electron-store')
 const store = new Store()
 const md5 = require('md5')
 
 let tray = null
-let server
+let server, port, password, startMinimized
 let mainWindow
 
 if (store.get('customPort') != undefined) {
@@ -44,7 +43,7 @@ process.on('uncaughtException', (err) => {
 	// }
 	console.error(err)
 })
-
+  
 // Catch change port message from front-end.
 ipcMain.on('changePort', (event, arg) => {
 	if (arg != port) {
@@ -83,13 +82,13 @@ let handleRedirect = (e, url) => {
 const createWindow = () => {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
+		webPreferences: {
+			nodeIntegration: true
+		},
 		width: 410,
 		height: 750,
 		resizable: false,
 		icon: iconpath,
-		webPreferences: {
-			nodeIntegration: true,
-		},
 	})
 	
 	if (startMinimized) {
@@ -103,7 +102,7 @@ const createWindow = () => {
 
 	mainWindow.on('minimize', function (event) {
 		event.preventDefault()
-		mainWindow.setSkipTaskbar(true)
+		// mainWindow.setSkipTaskbar(true)
 		mainWindow.hide()
 	})
 
@@ -117,12 +116,12 @@ const createWindow = () => {
 
 	mainWindow.on('activate', function () {
 		// appIcon.setHighlightMode('always')
-		// mainWindow.show()
-		mainWindow.minimize()
+		mainWindow.show()
+		// mainWindow.minimize()
 	})
 
 	mainWindow.on('restore', () => {
-		mainWindow.setSkipTaskbar(false)
+		// mainWindow.setSkipTaskbar(false)
 	})
 	
 	mainWindow.on('closed', () => {
@@ -179,8 +178,8 @@ app.whenReady().then(() => {
 		},
 	])
 	tray.setContextMenu(contextMenu)
-
-	mainWindow.webContents.on('dom-ready', () => {
+  
+	mainWindow.webContents.on('did-finish-load', () => {
 		// When the DOM is ready we will send the version of the app
 		mainWindow.webContents.send('initport', port)
 		mainWindow.webContents.send('version', 'Version: ' + version)
