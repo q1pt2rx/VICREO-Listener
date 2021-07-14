@@ -3,6 +3,7 @@
 windows_signing.pfx
 build/
 bin/
+.vscode/
 
 # Logs
 logs
