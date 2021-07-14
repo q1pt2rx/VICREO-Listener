@@ -138,40 +138,7 @@
 <p>Logs:</p>
 <textarea id='logs' rows="8" cols="40" disabled wrap="off"></textarea>
 <a id="donateBtn" href="https://donorbox.org/vicreo-listener?default_interval=o&amount=25">Donate</a>
+<script type="text/javascript" src="./screen.js"></script>
 </body>
 
 </html>
-
-<script>
-	const { ipcRenderer } = require('electron')
-	
-	ipcRenderer.on('initport', (event, arg) => {
-		document.getElementById('port').value = arg;
-	})
-	
-	ipcRenderer.on('initpassword', (event, arg) => {
-		document.getElementById('password').value = arg;
-	})
-
-	ipcRenderer.on('log', (event, arg) => {
-		let today = new Date();
-		let time = today.getHours() + ":" + String(today.getMinutes()).padStart(2, "0") + ":" + String(today.getSeconds()).padStart(2, "0") + " ";
-		document.getElementById('logs').innerHTML = time + arg.concat('\n', document.getElementById('logs').innerHTML)
-		// document.getElementById('logs').innerHTML += '\n' + arg;
-	})
-
-	ipcRenderer.on('version', (event, arg) => {
-		document.getElementById('version').innerHTML = arg;
-	})
-
-	document.getElementById("changePortBtn").addEventListener("click", function () {
-		var port = document.getElementById("port").value;
-		ipcRenderer.send('changePort', port)
-	});
-	
-	document.getElementById("changePasswordBtn").addEventListener("click", function () {
-		var password = document.getElementById("password").value;
-		ipcRenderer.send('changePassword', password)
-	});
-
-</script>
