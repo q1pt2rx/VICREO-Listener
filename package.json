@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "bindings": "^1.5.0",
-    "dotenv": "^10.0.0",
     "electron-notarize": "^1.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^6.0.0",
@@ -41,6 +40,7 @@
     "url": "git://github.com/JeffreyDavidsz/VICREO-Listener.git"
   },
   "devDependencies": {
+    "dotenv": "^10.0.0",
     "@electron-forge/cli": "^6.0.0-beta.57",
     "@electron-forge/maker-deb": "6.0.0-beta.57",
     "@electron-forge/maker-rpm": "6.0.0-beta.57",

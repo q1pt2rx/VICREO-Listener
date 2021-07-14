@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const config = {
 	hooks: {
 		postPackage: require('./src/hooks/notarize.js')
