@@ -291,9 +291,7 @@ Napi::Value Type(const Napi::CallbackInfo &info)
 		ip.ki.dwExtraInfo = 0;
 
 		std::map<std::string, int>::iterator it;
-
-		for (int i = 0; i < arg0.length(); i++) // Walk-through the string and type
-		{
+		for (std::string::size_type i = 0; i < arg0.size(); i++) { // Walk-through the string and type
 			string letter(1, arg0[i]);
 			// cout << typeid(arg0[i]).name() << endl;
 			it = mapOfVKCodes.find(letter);
@@ -311,7 +309,7 @@ Napi::Value Type(const Napi::CallbackInfo &info)
 			{
 				return Napi::String::New(env, "Invalid key found");
 			}
-			Sleep(500); // Wait a bit before next letter
+			Sleep(100); // Wait a bit before next letter
 		}
 	#endif
 	return Napi::String::New(env, "ok - typing");
