@@ -362,6 +362,10 @@ function findKeyCode(key) {
  */
 function processIncomingData(data) {
 	mainWindow.webContents.send('log', 'received: ' + JSON.stringify(data))
+	if(!data.password) {
+		mainWindow.webContents.send('log', 'no password provided, make sure you send one')
+		return
+	}
 	if (data.password == md5(password)) {
 		switch (data.type) {
 			case 'press':
@@ -446,7 +450,7 @@ function processIncomingData(data) {
 				break
 
 			case 'string':
-				virtualkeycode.type(data.msg)
+				mainWindow.webContents.send('log','Action: '+virtualkeycode.type(data.msg.toLowerCase()))
 				break
 
 			case 'shell':
