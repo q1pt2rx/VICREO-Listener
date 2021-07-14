@@ -424,7 +424,6 @@ function processIncomingData(data) {
 				break
 
 			case 'processOSX':
-				let script = null
 				if (data.processName == 'null' || data.processName == '') {
 					if (process.platform == 'darwin') {
 						;(async () => {
