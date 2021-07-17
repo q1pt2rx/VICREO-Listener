@@ -363,8 +363,10 @@ function findKeyCode(key) {
 function processIncomingData(data) {
 	mainWindow.webContents.send('log', 'received: ' + JSON.stringify(data))
 	if(!data.password) {
-		mainWindow.webContents.send('log', 'no password provided, make sure you send one')
-		return
+		mainWindow.webContents.send('log', 'no password provided, make sure you send one {"password": "MD5(xxx)"}')
+		if(password != "") {
+			return
+		}
 	}
 	if (data.password == md5(password)) {
 		switch (data.type) {
