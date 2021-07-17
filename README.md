@@ -32,24 +32,24 @@ The following types are available;
 
 ### Example key press ###
 For keypresses create a object like this;
-<pre><code>{ "key":"tab", "type":"press", "modifiers":["alt"] }</code></pre>
+<pre><code>{ "key":"tab", "type":"press", "modifiers":["alt"], "password":"" }</code></pre>
 
 > Put the modifiers in an array.
 > Alt/option, command(win), Ctrl and Shift are supported.
 
 ### Example open file ###
 Open a file on the local system;
-<pre><code>{ "type":"file","path":"C:/Barco/InfoT1413.pdf" }</code></pre>
+<pre><code>{ "type":"file","path":"C:/Barco/InfoT1413.pdf", "password":""}</code></pre>
 
 ### Example shell ###
 To perform a shell command on the system;
-<pre><code>{ "type":"shell","shell":"dir" }</code></pre>
+<pre><code>{ "type":"shell","shell":"dir", "password":""}</code></pre>
 
 ### Example processOSX ###
-<pre><code>{ "key":"tab", "type":"processOSX","processName":"Microsoft PowerPoint", "modifiers":["alt"] }</code></pre>
+<pre><code>{ "key":"tab", "type":"processOSX","processName":"Microsoft PowerPoint", "modifiers":["alt"], "password":""}</code></pre>
 
 ### Example string message ###
-<pre><code>{ "type":"string","msg":"C:/Barco/InfoT1413.pdf" }</code></pre>
+<pre><code>{ "type":"string","msg":"C:/Barco/InfoT1413.pdf", "password":"" }</code></pre>
 
 ## Keys ##
 
