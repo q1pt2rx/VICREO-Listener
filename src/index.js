@@ -362,15 +362,14 @@ function findKeyCode(key) {
  */
 function processIncomingData(data) {
 	mainWindow.webContents.send('log', 'received: ' + JSON.stringify(data))
-	if(!data.password) {
-		mainWindow.webContents.send('log', 'no password provided, make sure you send one {"password": "MD5(xxx)"}')
-		if(password != "") {
-			return
-		}
+	if(!data.password && password != "") {
+		mainWindow.webContents.send('log', 'You did not send a password {"password": "MD5(xxx)"}')
+		return
 	}
-	if (data.password == md5(password)) {
+	if (password == "" || data.password == md5(password)) {
 		switch (data.type) {
 			case 'press':
+				if(data.modifiers == undefined) {
 				if (process.platform == 'darwin') {
 					;(async () => {
 						const result = await runApplescript(
@@ -381,6 +380,22 @@ function processIncomingData(data) {
 				} else {
 					virtualkeycode.keyPressRelease(checkKey(data.key))
 				}
+			} else {
+				if (process.platform == 'darwin') {
+					;(async () => {
+						const result = await runApplescript(
+							'tell application "System Events"\n' + processKeyDataOSX(data.key, data.modifiers) + '\nend tell'
+						)
+						console.log(result)
+					})()
+				} else {
+					virtualkeycode.keyPress(checkKey(data.modifiers[0]))
+					virtualkeycode.keyPress(checkKey(data.key))
+					virtualkeycode.keyRelease(checkKey(data.key))
+					virtualkeycode.keyRelease(checkKey(data.modifiers[0]))
+				}
+			}
+
 				break
 
 			case 'combination':
